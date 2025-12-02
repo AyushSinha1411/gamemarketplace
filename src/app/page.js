@@ -17,7 +17,7 @@ export default function Home() {
   const [selectedPlatform, setSelectedPlatform] = useState('All');
   const [selectedCondition, setSelectedCondition] = useState('All Conditions');
   const [selectedPriceRange, setSelectedPriceRange] = useState('All Prices');
-  const [sortBy, setSortBy] = useState('featured');
+  const [sortBy, setSortBy] = useState('recently-added');
   const [currentPage, setCurrentPage] = useState(1);
   const gamesPerPage = 9;
   const [filteredGames, setFilteredGames] = useState([]);

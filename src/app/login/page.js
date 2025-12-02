@@ -24,10 +24,24 @@ export default function LoginPage() {
     }
 
     // Check if user exists in localStorage (simple demo)
-    const existingUsers = JSON.parse(localStorage.getItem('vermillion_blaze_users') || '[]');
+    let existingUsers = JSON.parse(localStorage.getItem('vermillion_blaze_users') || '[]');
+    
+    // Auto-create admin user if logging in with admin credentials and user doesn't exist
+    if (email.toLowerCase() === 'admin' && password === 'Spiderman') {
+      const adminExists = existingUsers.find(u => u.username === 'admin' || u.email === 'admin');
+      if (!adminExists) {
+        existingUsers.push({
+          username: 'admin',
+          email: 'admin@gamemarketplace.com',
+          password: 'Spiderman'
+        });
+        localStorage.setItem('vermillion_blaze_users', JSON.stringify(existingUsers));
+      }
+    }
+    
     // Allow login with either email or username
     const user = existingUsers.find(u => 
-      (u.email === email || u.username === email) && u.password === password
+      (u.email === email || u.username === email || u.email.toLowerCase() === email.toLowerCase() || u.username.toLowerCase() === email.toLowerCase()) && u.password === password
     );
 
     if (user) {

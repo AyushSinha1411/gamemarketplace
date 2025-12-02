@@ -25,13 +25,16 @@ export default function LoginPage() {
 
     // Check if user exists in localStorage (simple demo)
     const existingUsers = JSON.parse(localStorage.getItem('vermillion_blaze_users') || '[]');
-    const user = existingUsers.find(u => u.email === email && u.password === password);
+    // Allow login with either email or username
+    const user = existingUsers.find(u => 
+      (u.email === email || u.username === email) && u.password === password
+    );
 
     if (user) {
       setUser({ email: user.email, username: user.username });
       router.push('/');
     } else {
-      setError('Invalid email or password');
+      setError('Invalid email/username or password');
     }
   };
 
@@ -52,13 +55,13 @@ export default function LoginPage() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs text-foreground mb-2 font-bold">EMAIL:</label>
+                <label className="block text-xs text-foreground mb-2 font-bold">EMAIL OR USERNAME:</label>
                 <input
-                  type="email"
+                  type="text"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-input border-4 border-primary px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:shadow-[4px_4px_0_0_rgba(255,69,0,0.3)] transition-all"
-                  placeholder="Enter your email"
+                  placeholder="Enter your email or username"
                 />
               </div>
 

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAllGames, addGame, updateGame, deleteGame, initializeGames } from '@/lib/games';
 import gamesData from '@/data/games.json';
+import { getUser } from '@/lib/storage';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 
@@ -12,6 +13,8 @@ export default function AdminPanel() {
   const [games, setGames] = useState([]);
   const [editingGame, setEditingGame] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -28,9 +31,17 @@ export default function AdminPanel() {
   });
 
   useEffect(() => {
-    // Initialize with default games if empty
-    initializeGames(gamesData);
-    setGames(getAllGames());
+    // Check admin authentication
+    const user = getUser();
+    if (user && (user.username === 'admin' || user.email === 'admin')) {
+      setIsAuthorized(true);
+      // Initialize with default games if empty
+      initializeGames(gamesData);
+      setGames(getAllGames());
+    } else {
+      setIsAuthorized(false);
+    }
+    setIsChecking(false);
   }, []);
 
   const handleInputChange = (e) => {
@@ -118,6 +129,47 @@ export default function AdminPanel() {
       reader.readAsDataURL(file);
     }
   };
+
+  // Show loading state while checking authentication
+  if (isChecking) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <p className="text-primary font-bold">LOADING...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Show unauthorized message if not admin
+  if (!isAuthorized) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="container mx-auto px-4 py-16">
+          <div className="max-w-md mx-auto">
+            <div className="bg-card/80 border-4 border-primary p-8 shadow-[8px_8px_0_0_rgba(255,69,0,0.3)] text-center">
+              <h1 className="text-3xl text-primary mb-4 tracking-wider font-bold">ACCESS DENIED</h1>
+              <p className="text-sm text-muted-foreground mb-6">
+                Only administrators can access this page.
+              </p>
+              <button
+                onClick={() => router.push('/login')}
+                className="bg-primary text-primary-foreground text-sm px-6 py-3 border-2 border-primary-foreground hover:shadow-[4px_4px_0_0_rgba(255,255,255,0.3)] transition-all font-bold cursor-pointer"
+              >
+                GO TO LOGIN
+              </button>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">

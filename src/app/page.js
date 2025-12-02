@@ -76,6 +76,15 @@ export default function Home() {
       filtered.sort((a, b) => b.price - a.price);
     } else if (sortBy === 'rating') {
       filtered.sort((a, b) => b.rating - a.rating);
+    } else if (sortBy === 'recently-added') {
+      // Sort by createdAt (most recent first) or by ID (higher ID = more recent)
+      filtered.sort((a, b) => {
+        if (a.createdAt && b.createdAt) {
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        }
+        // Fallback to ID if createdAt not available
+        return (b.id || 0) - (a.id || 0);
+      });
     }
 
     setFilteredGames(filtered);
@@ -170,6 +179,7 @@ export default function Home() {
                 className="bg-input border-4 border-primary text-xs text-foreground px-4 py-2 focus:outline-none focus:shadow-[4px_4px_0_0_rgba(255,69,0,0.3)] transition-all cursor-pointer"
               >
                 <option value="featured">SORT: Featured</option>
+                <option value="recently-added">Recently Added</option>
                 <option value="price-low">Price: Low to High</option>
                 <option value="price-high">Price: High to Low</option>
                 <option value="rating">Rating: Highest</option>

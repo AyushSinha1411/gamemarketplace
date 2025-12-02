@@ -22,6 +22,7 @@ export const addGame = (game) => {
   const newGame = {
     ...game,
     id: Date.now(), // Simple ID generation
+    createdAt: new Date().toISOString(), // Track when game was added
   };
   games.push(newGame);
   saveGames(games);
@@ -53,7 +54,25 @@ export const initializeGames = (defaultGames) => {
   if (typeof window === 'undefined') return;
   const existing = getAllGames();
   if (existing.length === 0) {
-    saveGames(defaultGames);
+    // Add createdAt timestamp to default games (set to past dates so they appear older)
+    const gamesWithTimestamp = defaultGames.map((game, index) => ({
+      ...game,
+      createdAt: new Date(Date.now() - (index * 86400000)).toISOString() // Spread out over days
+    }));
+    saveGames(gamesWithTimestamp);
+  } else {
+    // Ensure all existing games have createdAt timestamp
+    const updatedGames = existing.map(game => {
+      if (!game.createdAt) {
+        return {
+          ...game,
+          createdAt: game.id ? new Date(game.id).toISOString() : new Date().toISOString()
+        };
+      }
+      return game;
+    });
+    saveGames(updatedGames);
   }
 };
+
 

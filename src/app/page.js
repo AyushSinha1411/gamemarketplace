@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import gamesData from '@/data/games.json';
 import { getCartItemCount } from '@/lib/storage';
 import { getAllGames, initializeGames } from '@/lib/games';
@@ -23,15 +23,16 @@ export default function Home() {
   const gamesPerPage = 9;
   const [filteredGames, setFilteredGames] = useState([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [allGames, setAllGames] = useState([]);
 
   useEffect(() => {
     // Initialize games from JSON if localStorage is empty
     initializeGames(gamesData);
     setCartCount(getCartItemCount());
+    setAllGames(getAllGames());
   }, []);
 
   useEffect(() => {
-    const allGames = getAllGames();
     let filtered = allGames;
 
     // Search filter
@@ -89,7 +90,7 @@ export default function Home() {
 
     setFilteredGames(filtered);
     setCurrentPage(1);
-  }, [searchQuery, selectedCategory, selectedPlatform, selectedCondition, selectedPriceRange, sortBy]);
+  }, [searchQuery, selectedCategory, selectedPlatform, selectedCondition, selectedPriceRange, sortBy, allGames]);
 
   const handleCartUpdate = () => {
     setCartCount(getCartItemCount());
@@ -100,16 +101,19 @@ export default function Home() {
   const conditions = ['Like New', 'Excellent', 'Very Good', 'Good'];
   const priceRanges = ['Under $20', '$20 - $40', '$40 - $60', 'Over $60'];
 
-  const categoryCounts = {
-    'Action': 1242,
-    'RPG': 987,
-    'Adventure': 634,
-    'Sports': 321,
-    'Racing': 281,
-    'Horror': 234,
-    'Puzzle': 99,
-    'Strategy': 452
-  };
+  // Calculate dynamic category counts
+  const categoryCounts = useMemo(() => {
+    const counts = {};
+    categories.forEach(cat => counts[cat] = 0);
+
+    allGames.forEach(game => {
+      if (counts[game.category] !== undefined) {
+        counts[game.category]++;
+      }
+    });
+
+    return counts;
+  }, [allGames]);
 
   const totalPages = Math.ceil(filteredGames.length / gamesPerPage);
   const startIndex = (currentPage - 1) * gamesPerPage;
@@ -150,7 +154,7 @@ export default function Home() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Mobile Filter Toggle */}
           <button
-            className="lg:hidden flex items-center gap-2 text-white bg-[#1a1a1a] px-4 py-2 rounded border border-white/10"
+            className="lg:hidden flex items-center gap-2 text-white bg-[#1a1a1a] px-4 py-2 rounded border border-white/10 cursor-pointer hover:bg-white/5 transition-colors"
             onClick={() => setIsFilterOpen(!isFilterOpen)}
           >
             <Filter className="w-4 h-4" />
@@ -189,7 +193,7 @@ export default function Home() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="bg-[#1a1a1a] text-white border border-white/10 rounded px-4 py-2 text-sm focus:outline-none focus:border-primary transition-colors"
+                className="bg-[#1a1a1a] text-white border border-white/10 rounded px-4 py-2 text-sm focus:outline-none focus:border-primary transition-colors cursor-pointer hover:border-white/20"
               >
                 <option value="featured">Featured</option>
                 <option value="recently-added">Newest Arrivals</option>
@@ -219,7 +223,7 @@ export default function Home() {
                     <button
                       onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                       disabled={currentPage === 1}
-                      className="p-2 rounded-lg bg-[#1a1a1a] border border-white/10 text-white hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="p-2 rounded-lg bg-[#1a1a1a] border border-white/10 text-white hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
                     >
                       <ChevronLeft className="w-5 h-5" />
                     </button>
@@ -229,7 +233,7 @@ export default function Home() {
                         <button
                           key={page}
                           onClick={() => setCurrentPage(page)}
-                          className={`w-10 h-10 rounded-lg font-medium transition-colors ${
+                          className={`w-10 h-10 rounded-lg font-medium transition-colors cursor-pointer ${
                             currentPage === page
                               ? 'bg-primary text-white'
                               : 'bg-[#1a1a1a] border border-white/10 text-gray-400 hover:bg-white/5 hover:text-white'
@@ -243,7 +247,7 @@ export default function Home() {
                     <button
                       onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                       disabled={currentPage === totalPages}
-                      className="p-2 rounded-lg bg-[#1a1a1a] border border-white/10 text-white hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="p-2 rounded-lg bg-[#1a1a1a] border border-white/10 text-white hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
                     >
                       <ChevronRight className="w-5 h-5" />
                     </button>

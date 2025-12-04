@@ -203,7 +203,13 @@ export default function Home() {
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                   {currentGames.map((game) => (
-                    <GameCard key={game.id} game={game} onCartUpdate={handleCartUpdate} />
+                    <GameCard
+                      key={game.id}
+                      game={game}
+                      onCartUpdate={handleCartUpdate}
+                      onCategoryClick={setSelectedCategory}
+                      onPlatformClick={setSelectedPlatform}
+                    />
                   ))}
                 </div>
 

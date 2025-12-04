@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { addToCart } from '@/lib/storage';
 import { Star, ShoppingCart, Plus } from 'lucide-react';
 
-export default function GameCard({ game, onCartUpdate }) {
+export default function GameCard({ game, onCartUpdate, onCategoryClick, onPlatformClick }) {
   const savings = (game.originalPrice - game.price).toFixed(2);
 
   const handleAddToCart = (e) => {
@@ -12,6 +12,18 @@ export default function GameCard({ game, onCartUpdate }) {
     e.stopPropagation();
     addToCart(game);
     if (onCartUpdate) onCartUpdate();
+  };
+
+  const handleCategoryClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onCategoryClick) onCategoryClick(game.category);
+  };
+
+  const handlePlatformClick = (e, platform) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onPlatformClick) onPlatformClick(platform);
   };
 
   return (
@@ -43,7 +55,7 @@ export default function GameCard({ game, onCartUpdate }) {
           <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
             <button
               onClick={handleAddToCart}
-              className="bg-white text-black px-6 py-2 rounded-full font-bold transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 hover:bg-gray-200 flex items-center gap-2"
+              className="bg-white text-black px-6 py-2 rounded-full font-bold transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 hover:bg-gray-200 flex items-center gap-2 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               Add to Cart
@@ -73,13 +85,20 @@ export default function GameCard({ game, onCartUpdate }) {
           </div>
 
           <div className="flex flex-wrap gap-2 mb-4">
-            <span className="text-xs bg-white/5 text-gray-300 px-2 py-1 rounded border border-white/5">
+            <button
+              onClick={handleCategoryClick}
+              className="text-xs bg-white/5 text-gray-300 px-2 py-1 rounded border border-white/5 hover:bg-primary hover:text-white hover:border-primary transition-colors cursor-pointer"
+            >
               {game.category}
-            </span>
+            </button>
             {game.platforms.slice(0, 2).map(platform => (
-              <span key={platform} className="text-xs bg-white/5 text-gray-300 px-2 py-1 rounded border border-white/5">
+              <button
+                key={platform}
+                onClick={(e) => handlePlatformClick(e, platform)}
+                className="text-xs bg-white/5 text-gray-300 px-2 py-1 rounded border border-white/5 hover:bg-primary hover:text-white hover:border-primary transition-colors cursor-pointer"
+              >
                 {platform}
-              </span>
+              </button>
             ))}
           </div>
 

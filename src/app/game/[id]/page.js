@@ -7,6 +7,7 @@ import gamesData from '@/data/games.json';
 import { addToCart, getCartItemCount } from '@/lib/storage';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import { Star, Minus, Plus, ArrowLeft } from 'lucide-react';
 
 export default function GameDetailPage() {
   const params = useParams();
@@ -46,24 +47,25 @@ export default function GameDetailPage() {
   const savings = (game.originalPrice - game.price).toFixed(2);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground">
       <Navigation cartCount={cartCount} />
-      
-      <div className="container mx-auto px-4 py-8">
-        <button 
+
+      <div className="container mx-auto px-4 pt-24 pb-12">
+        <button
           onClick={() => router.back()}
-          className="text-xs text-primary hover:text-primary/80 mb-6 border-2 border-primary/30 px-4 py-2 hover:border-primary transition-all cursor-pointer"
+          className="flex items-center gap-2 text-sm text-gray-400 hover:text-white mb-8 transition-colors group"
         >
-          ← BACK TO GAMES
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          Back to Games
         </button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Left Column - Image */}
-          <div className="bg-card/80 border-4 border-primary p-6 shadow-[8px_8px_0_0_rgba(255,69,0,0.3)]">
-            <div className="aspect-square bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center border-2 border-primary/30 overflow-hidden">
+          <div className="relative group">
+            <div className="aspect-video rounded-lg overflow-hidden border border-white/10 bg-[#1a1a1a] shadow-2xl">
               {game.image ? (
-                <img 
-                  src={game.image} 
+                <img
+                  src={game.image}
                   alt={game.title}
                   className="w-full h-full object-cover"
                   onError={(e) => {
@@ -72,101 +74,108 @@ export default function GameDetailPage() {
                   }}
                 />
               ) : null}
-              <div className={`w-full h-full flex items-center justify-center ${game.image ? 'hidden' : ''}`}>
-                <span className="text-muted-foreground text-lg font-bold text-center px-4">{game.title}</span>
+              <div className={`w-full h-full flex items-center justify-center bg-gradient-to-br from-[#2a2a2a] to-[#1a1a1a] ${game.image ? 'hidden' : ''}`}>
+                <span className="text-gray-500 text-xl font-medium">{game.title}</span>
               </div>
             </div>
           </div>
 
           {/* Right Column - Details */}
-          <div className="space-y-6">
+          <div className="space-y-8">
             <div>
               <div className="flex items-center gap-3 mb-4">
-                <span className="bg-primary text-primary-foreground text-xs px-3 py-1 border-2 border-primary-foreground font-bold shadow-[4px_4px_0_0_rgba(255,255,255,0.3)]">
+                <span className="bg-primary text-white text-xs font-bold px-2 py-1 rounded">
                   -{game.discount}% OFF
                 </span>
                 <div className="flex flex-wrap gap-2">
                   {game.platforms.map(platform => (
-                    <span key={platform} className="text-[10px] bg-muted text-muted-foreground px-2 py-1 border-2 border-primary/20 font-bold">
+                    <span key={platform} className="text-xs bg-white/5 text-gray-300 px-2 py-1 rounded border border-white/5">
                       {platform}
                     </span>
                   ))}
                 </div>
               </div>
-              
-              <h1 className="text-3xl md:text-4xl text-primary mb-4 tracking-wider font-bold">{game.title}</h1>
-              
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl text-primary">★</span>
-                  <span className="text-sm text-muted-foreground font-bold">
-                    {game.rating} ({game.reviewCount.toLocaleString()} reviews)
-                  </span>
+
+              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">{game.title}</h1>
+
+              <div className="flex items-center gap-4 mb-6">
+                <div className="flex items-center gap-1 text-yellow-500">
+                  <Star className="w-4 h-4 fill-current" />
+                  <Star className="w-4 h-4 fill-current" />
+                  <Star className="w-4 h-4 fill-current" />
+                  <Star className="w-4 h-4 fill-current" />
+                  <Star className="w-4 h-4 fill-current" />
                 </div>
-                <span className="text-xs bg-muted text-muted-foreground px-2 py-1 border-2 border-primary/20 font-bold">
+                <span className="text-sm text-gray-400">
+                  {game.reviewCount.toLocaleString()} reviews
+                </span>
+                <span className="w-1 h-1 bg-gray-600 rounded-full"></span>
+                <span className="text-sm text-primary font-medium">
                   {game.category}
                 </span>
               </div>
 
-              <p className="text-sm text-muted-foreground mb-6 leading-relaxed">{game.description}</p>
+              <p className="text-gray-300 leading-relaxed text-lg">{game.description}</p>
             </div>
 
-            {/* Condition and Seller */}
-            <div className="bg-card/80 border-4 border-primary p-4">
-              <div className="space-y-2">
-                <p className="text-xs text-foreground font-bold">CONDITION: <span className="text-primary">{game.condition}</span></p>
-                <p className="text-xs text-foreground font-bold">SELLER: <span className="text-primary">{game.seller}</span></p>
+            {/* Info Grid */}
+            <div className="grid grid-cols-2 gap-4 py-6 border-y border-white/10">
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Condition</p>
+                <p className="text-white font-medium">{game.condition}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Seller</p>
+                <p className="text-primary font-medium">{game.seller}</p>
               </div>
             </div>
 
-            {/* Price */}
-            <div className="bg-card/80 border-4 border-primary p-6">
-              <div className="mb-4">
-                <p className="text-4xl text-green-500 font-bold mb-2">${game.price.toFixed(2)}</p>
-                <p className="text-sm text-muted-foreground line-through">${game.originalPrice.toFixed(2)}</p>
-                <p className="text-xs text-green-500 font-bold mt-2">YOU SAVE ${savings}</p>
+            {/* Price & Actions */}
+            <div className="bg-[#1a1a1a] border border-white/10 rounded-lg p-6">
+              <div className="flex items-end gap-3 mb-6">
+                <p className="text-4xl font-bold text-white">${game.price.toFixed(2)}</p>
+                <p className="text-lg text-gray-500 line-through mb-1">${game.originalPrice.toFixed(2)}</p>
+                <span className="text-sm text-green-500 font-medium mb-1 ml-auto">Save ${savings}</span>
               </div>
 
-              {/* Quantity Selector */}
-              <div className="mb-4">
-                <label className="text-xs text-foreground font-bold mb-2 block">QUANTITY:</label>
-                <div className="flex items-center gap-2">
-              <button
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                className="bg-input border-4 border-primary px-3 py-2 text-foreground hover:bg-primary hover:text-primary-foreground transition-all font-bold cursor-pointer"
-              >
-                -
-              </button>
-              <input
-                type="number"
-                min="1"
-                value={quantity}
-                onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                className="w-20 bg-input border-4 border-primary px-4 py-2 text-center text-foreground focus:outline-none focus:shadow-[4px_4px_0_0_rgba(255,69,0,0.3)] font-bold cursor-pointer"
-              />
-              <button
-                onClick={() => setQuantity(quantity + 1)}
-                className="bg-input border-4 border-primary px-3 py-2 text-foreground hover:bg-primary hover:text-primary-foreground transition-all font-bold cursor-pointer"
-              >
-                +
-              </button>
+              <div className="flex flex-col sm:flex-row gap-4">
+                {/* Quantity */}
+                <div className="flex items-center bg-black/20 rounded-lg border border-white/10">
+                  <button
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="p-3 text-gray-400 hover:text-white transition-colors"
+                  >
+                    <Minus className="w-4 h-4" />
+                  </button>
+                  <input
+                    type="number"
+                    min="1"
+                    value={quantity}
+                    onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                    className="w-12 bg-transparent text-center text-white focus:outline-none font-medium"
+                  />
+                  <button
+                    onClick={() => setQuantity(quantity + 1)}
+                    className="p-3 text-gray-400 hover:text-white transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
                 </div>
-              </div>
 
-              {/* Add to Cart Button */}
-              <button
-                onClick={handleAddToCart}
-                className="w-full bg-primary text-primary-foreground text-sm px-6 py-4 border-2 border-primary-foreground hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.3)] transition-all font-bold mb-3 cursor-pointer"
-              >
-                ADD TO CART ({quantity})
-              </button>
-              
-              <button
-                onClick={() => router.push('/checkout')}
-                className="w-full bg-green-600 text-white text-sm px-6 py-4 border-2 border-green-400 hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.3)] transition-all font-bold cursor-pointer"
-              >
-                BUY NOW
-              </button>
+                <button
+                  onClick={handleAddToCart}
+                  className="flex-1 bg-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-primary/90 transition-colors"
+                >
+                  Add to Cart
+                </button>
+
+                <button
+                  onClick={() => router.push('/checkout')}
+                  className="flex-1 bg-white text-black font-bold py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  Buy Now
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -176,4 +185,3 @@ export default function GameDetailPage() {
     </div>
   );
 }
-

@@ -9,6 +9,7 @@ import Footer from '@/components/Footer';
 import SearchBar from '@/components/SearchBar';
 import FilterSidebar from '@/components/FilterSidebar';
 import GameCard from '@/components/GameCard';
+import { ChevronLeft, ChevronRight, Filter } from 'lucide-react';
 
 export default function Home() {
   const [cartCount, setCartCount] = useState(0);
@@ -21,6 +22,7 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(1);
   const gamesPerPage = 9;
   const [filteredGames, setFilteredGames] = useState([]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   useEffect(() => {
     // Initialize games from JSON if localStorage is empty
@@ -77,18 +79,16 @@ export default function Home() {
     } else if (sortBy === 'rating') {
       filtered.sort((a, b) => b.rating - a.rating);
     } else if (sortBy === 'recently-added') {
-      // Sort by createdAt (most recent first) or by ID (higher ID = more recent)
       filtered.sort((a, b) => {
         if (a.createdAt && b.createdAt) {
           return new Date(b.createdAt) - new Date(a.createdAt);
         }
-        // Fallback to ID if createdAt not available
         return (b.id || 0) - (a.id || 0);
       });
     }
 
     setFilteredGames(filtered);
-    setCurrentPage(1); // Reset to first page when filters change
+    setCurrentPage(1);
   }, [searchQuery, selectedCategory, selectedPlatform, selectedCondition, selectedPriceRange, sortBy]);
 
   const handleCartUpdate = () => {
@@ -111,127 +111,143 @@ export default function Home() {
     'Strategy': 452
   };
 
-  // Pagination
   const totalPages = Math.ceil(filteredGames.length / gamesPerPage);
   const startIndex = (currentPage - 1) * gamesPerPage;
   const endIndex = startIndex + gamesPerPage;
   const currentGames = filteredGames.slice(startIndex, endIndex);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground">
       <Navigation cartCount={cartCount} onCartUpdate={handleCartUpdate} />
 
       {/* Hero Section */}
-      <section 
-        className="border-b-4 border-primary py-12 relative"
-        style={{
-          backgroundImage: 'url(/bg.jpg)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
-        }}
-      >
-        <div className="absolute inset-0 bg-background/80"></div>
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center mb-8">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl text-primary mb-4 tracking-wider leading-tight">
-              BROWSE ALL GAMES
-            </h2>
-            <div className="w-32 h-1 bg-primary mx-auto mb-4"></div>
-            <p className="text-sm md:text-base text-muted-foreground mb-8 leading-relaxed">
-              Discover thousands of pre-owned games at unbeatable prices!
-            </p>
-            
+      <section className="relative h-[60vh] min-h-[500px] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent z-10"></div>
+          <div className="absolute inset-0 bg-black/40 z-10"></div>
+          <img
+            src="/bg.jpg"
+            alt="Hero Background"
+            className="w-full h-full object-cover"
+          />
+        </div>
+
+        <div className="container mx-auto px-4 relative z-20 text-center">
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight">
+            Discover Your Next <span className="text-primary">Adventure</span>
+          </h1>
+          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+            Explore thousands of pre-owned games at unbeatable prices. Join the community of gamers today.
+          </p>
+          <div className="max-w-2xl mx-auto">
             <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
           </div>
         </div>
       </section>
 
-      {/* Main Content - Two Columns */}
-      <div className="container mx-auto px-4 py-8">
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-12">
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Left Column - Filters */}
-          <FilterSidebar
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
-            selectedPlatform={selectedPlatform}
-            setSelectedPlatform={setSelectedPlatform}
-            selectedCondition={selectedCondition}
-            setSelectedCondition={setSelectedCondition}
-            selectedPriceRange={selectedPriceRange}
-            setSelectedPriceRange={setSelectedPriceRange}
-            categories={categories}
-            platforms={platforms}
-            conditions={conditions}
-            priceRanges={priceRanges}
-            categoryCounts={categoryCounts}
-          />
+          {/* Mobile Filter Toggle */}
+          <button
+            className="lg:hidden flex items-center gap-2 text-white bg-[#1a1a1a] px-4 py-2 rounded border border-white/10"
+            onClick={() => setIsFilterOpen(!isFilterOpen)}
+          >
+            <Filter className="w-4 h-4" />
+            Filters
+          </button>
 
-          {/* Right Column - Game Listings */}
+          {/* Sidebar */}
+          <div className={`lg:block ${isFilterOpen ? 'block' : 'hidden'}`}>
+            <FilterSidebar
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+              selectedPlatform={selectedPlatform}
+              setSelectedPlatform={setSelectedPlatform}
+              selectedCondition={selectedCondition}
+              setSelectedCondition={setSelectedCondition}
+              selectedPriceRange={selectedPriceRange}
+              setSelectedPriceRange={setSelectedPriceRange}
+              categories={categories}
+              platforms={platforms}
+              conditions={conditions}
+              priceRanges={priceRanges}
+              categoryCounts={categoryCounts}
+            />
+          </div>
+
+          {/* Game Grid */}
           <main className="flex-1">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
-              <div className="border-4 border-primary bg-card/80 px-4 py-2">
-                <p className="text-sm text-primary font-bold tracking-wider">{filteredGames.length} GAMES FOUND</p>
-              </div>
-              <select 
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white">
+                {searchQuery ? `Search Results for "${searchQuery}"` : 'All Games'}
+                <span className="ml-3 text-sm font-normal text-gray-500">
+                  {filteredGames.length} titles found
+                </span>
+              </h2>
+
+              <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="bg-input border-4 border-primary text-xs text-foreground px-4 py-2 focus:outline-none focus:shadow-[4px_4px_0_0_rgba(255,69,0,0.3)] transition-all cursor-pointer"
+                className="bg-[#1a1a1a] text-white border border-white/10 rounded px-4 py-2 text-sm focus:outline-none focus:border-primary transition-colors"
               >
-                <option value="featured">SORT: Featured</option>
-                <option value="recently-added">Recently Added</option>
+                <option value="featured">Featured</option>
+                <option value="recently-added">Newest Arrivals</option>
                 <option value="price-low">Price: Low to High</option>
                 <option value="price-high">Price: High to Low</option>
-                <option value="rating">Rating: Highest</option>
+                <option value="rating">Highest Rated</option>
               </select>
             </div>
 
-            {/* Game Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {currentGames.map((game) => (
-                <GameCard key={game.id} game={game} onCartUpdate={handleCartUpdate} />
-              ))}
-            </div>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="mt-10 flex items-center justify-center gap-2">
-                <button
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                  disabled={currentPage === 1}
-                  className="border-4 border-primary text-primary text-sm px-4 py-2 bg-card/80 hover:bg-primary hover:text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-all font-bold"
-                >
-                  ← PREV
-                </button>
-                <div className="flex gap-2">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <button
-                      key={page}
-                      onClick={() => setCurrentPage(page)}
-                      className={`border-4 border-primary text-sm px-4 py-2 transition-all font-bold ${
-                        currentPage === page
-                          ? 'bg-primary text-primary-foreground shadow-[4px_4px_0_0_rgba(255,255,255,0.3)]'
-                          : 'bg-card/80 text-primary hover:bg-primary hover:text-primary-foreground'
-                      }`}
-                    >
-                      {page}
-                    </button>
+            {filteredGames.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {currentGames.map((game) => (
+                    <GameCard key={game.id} game={game} onCartUpdate={handleCartUpdate} />
                   ))}
                 </div>
-                <button
-                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                  disabled={currentPage === totalPages}
-                  className="border-4 border-primary text-primary text-sm px-4 py-2 bg-card/80 hover:bg-primary hover:text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-all font-bold"
-                >
-                  NEXT →
-                </button>
-              </div>
-            )}
 
-            {filteredGames.length === 0 && (
-              <div className="bg-card/80 border-4 border-primary p-12 text-center shadow-[8px_8px_0_0_rgba(255,69,0,0.3)]">
-                <p className="text-xl text-muted-foreground font-bold">NO GAMES FOUND</p>
-                <p className="text-sm text-muted-foreground mt-2">Try adjusting your filters</p>
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="mt-12 flex items-center justify-center gap-2">
+                    <button
+                      onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                      disabled={currentPage === 1}
+                      className="p-2 rounded-lg bg-[#1a1a1a] border border-white/10 text-white hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+
+                    <div className="flex gap-2">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <button
+                          key={page}
+                          onClick={() => setCurrentPage(page)}
+                          className={`w-10 h-10 rounded-lg font-medium transition-colors ${
+                            currentPage === page
+                              ? 'bg-primary text-white'
+                              : 'bg-[#1a1a1a] border border-white/10 text-gray-400 hover:bg-white/5 hover:text-white'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      ))}
+                    </div>
+
+                    <button
+                      onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                      disabled={currentPage === totalPages}
+                      className="p-2 rounded-lg bg-[#1a1a1a] border border-white/10 text-white hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="bg-[#1a1a1a] border border-white/10 rounded-lg p-12 text-center">
+                <h3 className="text-xl font-bold text-white mb-2">No games found</h3>
+                <p className="text-gray-400">Try adjusting your filters or search query</p>
               </div>
             )}
           </main>

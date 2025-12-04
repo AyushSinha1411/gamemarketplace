@@ -1,5 +1,7 @@
 'use client';
 
+import { Check } from 'lucide-react';
+
 export default function FilterSidebar({
   selectedCategory,
   setSelectedCategory,
@@ -15,124 +17,110 @@ export default function FilterSidebar({
   priceRanges,
   categoryCounts
 }) {
+  const FilterSection = ({ title, items, selected, onSelect, showCounts = false }) => (
+    <div className="mb-8">
+      <h4 className="text-white font-bold mb-4 text-sm uppercase tracking-wider">{title}</h4>
+      <div className="space-y-2">
+        <button
+          onClick={() => onSelect(items.allValue)}
+          className={`w-full flex items-center justify-between px-3 py-2 rounded text-sm transition-colors ${
+            selected === items.allValue
+              ? 'bg-primary text-white font-medium'
+              : 'text-gray-400 hover:bg-white/5 hover:text-white'
+          }`}
+        >
+          <span>{items.allLabel}</span>
+          {selected === items.allValue && <Check className="w-4 h-4" />}
+        </button>
+
+        {items.options.map(item => (
+          <button
+            key={item}
+            onClick={() => onSelect(item)}
+            className={`w-full flex items-center justify-between px-3 py-2 rounded text-sm transition-colors ${
+              selected === item
+                ? 'bg-primary text-white font-medium'
+                : 'text-gray-400 hover:bg-white/5 hover:text-white'
+            }`}
+          >
+            <span>{item}</span>
+            <div className="flex items-center gap-2">
+              {showCounts && categoryCounts[item] && (
+                <span className={`text-xs ${selected === item ? 'text-white/80' : 'text-gray-600'}`}>
+                  {categoryCounts[item]}
+                </span>
+              )}
+              {selected === item && <Check className="w-4 h-4" />}
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
-    <aside className="lg:w-72 flex-shrink-0">
-      <div className="bg-card/80 border-4 border-primary p-6 shadow-[8px_8px_0_0_rgba(255,69,0,0.3)] sticky top-24">
-        <h3 className="text-xl text-primary mb-6 border-b-4 border-primary pb-3 tracking-wider">FILTERS</h3>
-
-        {/* Category */}
-        <div className="mb-6">
-          <h4 className="text-sm text-foreground mb-3 font-bold tracking-wider">CATEGORY:</h4>
+    <aside className="lg:w-64 flex-shrink-0">
+      <div className="bg-[#1a1a1a] border border-white/10 rounded-lg p-6 sticky top-24">
+        <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+          <h3 className="text-lg font-bold text-white">Filters</h3>
           <button
-            onClick={() => setSelectedCategory('All Categories')}
-            className={`block w-full text-left text-xs py-2 px-3 mb-2 border-2 transition-all cursor-pointer ${
-              selectedCategory === 'All Categories' 
-                ? 'bg-primary text-primary-foreground border-primary-foreground shadow-[4px_4px_0_0_rgba(255,255,255,0.3)]' 
-                : 'text-muted-foreground hover:text-primary border-primary/30 hover:border-primary'
-            }`}
+            onClick={() => {
+              setSelectedCategory('All Categories');
+              setSelectedPlatform('All');
+              setSelectedCondition('All Conditions');
+              setSelectedPriceRange('All Prices');
+            }}
+            className="text-xs text-primary hover:text-primary/80 font-medium"
           >
-            All Categories
+            Reset All
           </button>
-          {categories.map(cat => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`block w-full text-left text-xs py-2 px-3 mb-2 border-2 transition-all cursor-pointer ${
-                selectedCategory === cat 
-                  ? 'bg-primary text-primary-foreground border-primary-foreground shadow-[4px_4px_0_0_rgba(255,255,255,0.3)]' 
-                  : 'text-muted-foreground hover:text-primary border-primary/30 hover:border-primary'
-              }`}
-            >
-              {cat} ({categoryCounts[cat] || 0})
-            </button>
-          ))}
         </div>
 
-        {/* Platform */}
-        <div className="mb-6">
-          <h4 className="text-sm text-foreground mb-3 font-bold tracking-wider">PLATFORM:</h4>
-          <button
-            onClick={() => setSelectedPlatform('All')}
-            className={`block w-full text-left text-xs py-2 px-3 mb-2 border-2 transition-all cursor-pointer ${
-              selectedPlatform === 'All' 
-                ? 'bg-primary text-primary-foreground border-primary-foreground shadow-[4px_4px_0_0_rgba(255,255,255,0.3)]' 
-                : 'text-muted-foreground hover:text-primary border-primary/30 hover:border-primary'
-            }`}
-          >
-            All
-          </button>
-          {platforms.map(platform => (
-            <button
-              key={platform}
-              onClick={() => setSelectedPlatform(platform)}
-              className={`block w-full text-left text-xs py-2 px-3 mb-2 border-2 transition-all cursor-pointer ${
-                selectedPlatform === platform 
-                  ? 'bg-primary text-primary-foreground border-primary-foreground shadow-[4px_4px_0_0_rgba(255,255,255,0.3)]' 
-                  : 'text-muted-foreground hover:text-primary border-primary/30 hover:border-primary'
-              }`}
-            >
-              {platform}
-            </button>
-          ))}
-        </div>
+        <FilterSection
+          title="Category"
+          items={{
+            allValue: 'All Categories',
+            allLabel: 'All Categories',
+            options: categories
+          }}
+          selected={selectedCategory}
+          onSelect={setSelectedCategory}
+          showCounts={true}
+        />
 
-        {/* Condition */}
-        <div className="mb-6">
-          <h4 className="text-sm text-foreground mb-3 font-bold tracking-wider">CONDITION:</h4>
-          <button
-            onClick={() => setSelectedCondition('All Conditions')}
-            className={`block w-full text-left text-xs py-2 px-3 mb-2 border-2 transition-all cursor-pointer ${
-              selectedCondition === 'All Conditions' 
-                ? 'bg-primary text-primary-foreground border-primary-foreground shadow-[4px_4px_0_0_rgba(255,255,255,0.3)]' 
-                : 'text-muted-foreground hover:text-primary border-primary/30 hover:border-primary'
-            }`}
-          >
-            All Conditions
-          </button>
-          {conditions.map(condition => (
-            <button
-              key={condition}
-              onClick={() => setSelectedCondition(condition)}
-              className={`block w-full text-left text-xs py-2 px-3 mb-2 border-2 transition-all cursor-pointer ${
-                selectedCondition === condition 
-                  ? 'bg-primary text-primary-foreground border-primary-foreground shadow-[4px_4px_0_0_rgba(255,255,255,0.3)]' 
-                  : 'text-muted-foreground hover:text-primary border-primary/30 hover:border-primary'
-              }`}
-            >
-              {condition}
-            </button>
-          ))}
-        </div>
+        <FilterSection
+          title="Platform"
+          items={{
+            allValue: 'All',
+            allLabel: 'All Platforms',
+            options: platforms
+          }}
+          selected={selectedPlatform}
+          onSelect={setSelectedPlatform}
+        />
 
-        {/* Price Range */}
-        <div className="mb-6">
-          <h4 className="text-sm text-foreground mb-3 font-bold tracking-wider">PRICE RANGE:</h4>
-          <button
-            onClick={() => setSelectedPriceRange('All Prices')}
-            className={`block w-full text-left text-xs py-2 px-3 mb-2 border-2 transition-all cursor-pointer ${
-              selectedPriceRange === 'All Prices' 
-                ? 'bg-primary text-primary-foreground border-primary-foreground shadow-[4px_4px_0_0_rgba(255,255,255,0.3)]' 
-                : 'text-muted-foreground hover:text-primary border-primary/30 hover:border-primary'
-            }`}
-          >
-            All Prices
-          </button>
-          {priceRanges.map(range => (
-            <button
-              key={range}
-              onClick={() => setSelectedPriceRange(range)}
-              className={`block w-full text-left text-xs py-2 px-3 mb-2 border-2 transition-all cursor-pointer ${
-                selectedPriceRange === range 
-                  ? 'bg-primary text-primary-foreground border-primary-foreground shadow-[4px_4px_0_0_rgba(255,255,255,0.3)]' 
-                  : 'text-muted-foreground hover:text-primary border-primary/30 hover:border-primary'
-              }`}
-            >
-              {range}
-            </button>
-          ))}
-        </div>
+        <FilterSection
+          title="Condition"
+          items={{
+            allValue: 'All Conditions',
+            allLabel: 'All Conditions',
+            options: conditions
+          }}
+          selected={selectedCondition}
+          onSelect={setSelectedCondition}
+        />
+
+        <FilterSection
+          title="Price Range"
+          items={{
+            allValue: 'All Prices',
+            allLabel: 'All Prices',
+            options: priceRanges
+          }}
+          selected={selectedPriceRange}
+          onSelect={setSelectedPriceRange}
+        />
       </div>
     </aside>
   );
 }
-

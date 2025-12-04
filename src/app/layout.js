@@ -1,10 +1,9 @@
-import { Press_Start_2P } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const pixelFont = Press_Start_2P({
-  weight: "400",
-  variable: "--font-pixel",
+const inter = Inter({
   subsets: ["latin"],
+  variable: "--font-sans",
 });
 
 export const metadata = {
@@ -15,7 +14,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${pixelFont.variable} font-pixel`}>
+      <body className={`${inter.variable} font-sans bg-background text-foreground antialiased`}>
         {children}
       </body>
     </html>
